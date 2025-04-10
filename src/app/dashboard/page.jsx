@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   Breadcrumb,
@@ -14,7 +17,41 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
-export default function Page() {
+export default function DashboardPage() {
+  const [companyData, setCompanyData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Token kontrolü
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    // Şirket bilgilerini al
+    const storedCompanyData = localStorage.getItem('companyData');
+    if (storedCompanyData) {
+      try {
+        setCompanyData(JSON.parse(storedCompanyData));
+      } catch (error) {
+        console.error('Şirket bilgileri parse edilemedi:', error);
+        window.location.href = '/login';
+      }
+    } else {
+      window.location.href = '/login';
+    }
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Yükleniyor...</div>;
+  }
+
+  if (!companyData) {
+    return null;
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -26,14 +63,8 @@ export default function Page() {
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Building Your Application
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                  <BreadcrumbPage>Hoş Geldiniz, {companyData.name}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
